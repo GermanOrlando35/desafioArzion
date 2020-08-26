@@ -1,6 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany, JoinTable, JoinColumn } from 'typeorm';
 import { Minimart } from '../entity/minimart';
 import { Category } from '../entity/category';
+import { Minimartproduct } from '../entity/minimartproduct';
+import { Cartproduct } from '../entity/cartproduct';
 
 @Entity()
 export class Product {
@@ -18,9 +20,10 @@ export class Product {
   description: string;
 
   @OneToOne(type => Category)
-  category: Category[];
+  @JoinColumn()
+  category: Category;
 
-  @ManyToMany(type => Minimart)
+/*  @ManyToMany(type => Minimart)
   @JoinTable({
     name: "products_minimarts",
     joinColumn: {
@@ -33,4 +36,11 @@ export class Product {
     }
   })
   minimarts: Minimart[];
+  */
+
+  @OneToMany(type => Minimartproduct, minimartproduct => minimartproduct.product)
+  minimartproducts: Minimartproduct[];
+
+  @OneToMany(type => Cartproduct, cartproduct => cartproduct.product)
+  cartproducts: Cartproduct[];
 }

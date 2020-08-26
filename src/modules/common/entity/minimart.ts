@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Product } from '../entity/product';
+import { Minimartproduct } from '../entity/minimartproduct';
 
 @Entity()
 export class Minimart {
@@ -22,6 +23,9 @@ export class Minimart {
   @Column()
   logo: string;
 
-  @ManyToMany(type => Product)
-  products: Product[];
+  /*@ManyToMany(type => Product)
+  products: Product[];*/
+
+  @OneToMany(type => Minimartproduct, minimartproduct => minimartproduct.minimart)
+  minimartproducts: Minimartproduct[];
 }
