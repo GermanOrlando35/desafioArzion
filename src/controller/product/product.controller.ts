@@ -14,6 +14,12 @@ export class ProductController {
       return this.productService.save(product);
     }
 
+    //3-Be able to query all available products, across stores, with their total stock.
+    @Get('allProductsWithTotalStock')
+    getProductsStockTotal():any{
+      return this.productService.findProductsStockTotal();
+    }
+
     @Get()
     getProduct():any{
       return  this.productService.findAll();
@@ -33,4 +39,5 @@ export class ProductController {
     deleteProduct( @Param() params):any{
       return  this.productService.delete(params.id);
     }
+
 }

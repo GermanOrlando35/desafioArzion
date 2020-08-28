@@ -9,7 +9,7 @@ async function bootstrap() {
     .setTitle('Minimart API')
     .setDescription('Rest API for the backend of the mini-market chain project')
     .setVersion('1.0')
-    .addTag('minimart')
+    .addTag('minimart API')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);

@@ -31,4 +31,13 @@ export class ProductService {
     async delete(id:number){
       return await this.productRepository.delete(id);
     }
+
+    async findProductsStockTotal(){
+      return await this.productRepository.createQueryBuilder("product")
+      .select("product")
+      .addSelect("SUM(minimartproduct.stock)", "stock")
+      .innerJoin("product.minimartproducts", "minimartproduct", "minimartproduct.productId = product.id")
+      .groupBy("minimartproduct.productId")
+      .getRawMany();
+    }
 }

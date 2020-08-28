@@ -2,6 +2,10 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Product } from '../entity/product';
 import { Minimartproduct } from '../entity/minimartproduct';
 
+enum WorkDays {
+  "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"
+}
+
 @Entity()
 export class Minimart {
 
@@ -11,11 +15,22 @@ export class Minimart {
   @Column()
   name: string;
 
-  @Column()
+  @Column(
+    {
+      type: "enum",
+      enum: WorkDays
+    }
+  )
   workDays: string;
 
+  /*@Column("simple-json")
+  hours: { start: string, end: string };*/
+
   @Column()
-  hours: number;
+  openingTime: number
+
+  @Column()
+  closingTime: number
 
   @Column()
   address: string;
