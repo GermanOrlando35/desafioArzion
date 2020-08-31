@@ -8,13 +8,15 @@ import { ProductService } from '../../services/product/product.service';
 @Injectable()
 export class MinimartService {
 
-  constructor(
-    @InjectRepository(Minimart)
-    private readonly minimartRepository:Repository<Minimart>,
-    @Inject(forwardRef(() => MinimartproductService))
-    private readonly minimartproductService: MinimartproductService,
-    private readonly productService: ProductService
-  ){}
+  @InjectRepository(Minimart)
+  private readonly minimartRepository:Repository<Minimart>;
+
+  @Inject(forwardRef(() => MinimartproductService))
+  private readonly minimartproductService: MinimartproductService;
+
+  @Inject()
+  private readonly productService: ProductService;
+  
 
   async save(minimart:any){
     await this.minimartRepository.insert(minimart);
@@ -47,7 +49,7 @@ export class MinimartService {
   }
 
   async findProductByIdInMinimart(idMinimart:number,idProduct:number){
-    var minimartProduct = this.minimartproductService.findByMinimartIdAndProductId(idMinimart,idProduct);
+    let minimartProduct = this.minimartproductService.findByMinimartIdAndProductId(idMinimart,idProduct);
     if (minimartProduct !== undefined) {
       return this.productService.find(idProduct);
     }

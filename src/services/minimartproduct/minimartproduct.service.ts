@@ -8,13 +8,14 @@ import { ProductService } from '../../services/product/product.service';
 @Injectable()
 export class MinimartproductService {
 
-  constructor(
-    @InjectRepository(Minimartproduct)
-    private readonly minimartproductRepository:Repository<Minimartproduct>,
-    @Inject(forwardRef(() => MinimartService))
-    private readonly minimartService: MinimartService,
-    private readonly productService: ProductService
-  ){}
+  @InjectRepository(Minimartproduct)
+  private readonly minimartproductRepository:Repository<Minimartproduct>;
+
+  @Inject(forwardRef(() => MinimartService))
+  private readonly minimartService: MinimartService;
+
+  @Inject()
+  private readonly productService: ProductService;
 
   getMinimartById(minimartId):any{
     return this.minimartService.find(minimartId);
@@ -50,6 +51,13 @@ export class MinimartproductService {
       minimart: this.getMinimartById(idMinimart),
       product: this.getProductById(idProduct)
     });
+  }
+
+  async productHasStockForMinimart(idMinimart:number,idProduct:number){
+    return await this.minimartproductRepository.createQueryBuilder("minimartproduct")
+    .where("minimartId = :id", { id: idMinimart })
+    .andWhere("productId = :id", { id: idProduct })
+    .getOne();
   }
 
 }

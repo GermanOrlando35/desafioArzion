@@ -6,10 +6,8 @@ import { Product } from '../../modules/common/entity/product';
 @Injectable()
 export class ProductService {
 
-    constructor(
-      @InjectRepository(Product)
-      private readonly productRepository:Repository<Product>
-    ){}
+    @InjectRepository(Product)
+    private readonly productRepository:Repository<Product>;
 
     async save(product:any){
       await this.productRepository.insert(product);

@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Minimart } from '../entity/minimart';
-import { Product } from '../entity/product';
 import { Cartproduct } from '../entity/cartproduct';
 
 @Entity()

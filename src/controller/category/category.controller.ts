@@ -1,36 +1,39 @@
-import {Controller,Get,Post,Put, Delete, Param,Body} from '@nestjs/common';
+import {Controller, Get,Post,Put, Delete, Param,Body,Inject, UseGuards} from '@nestjs/common';
+import {ApiTags} from '@nestjs/swagger';
+import {AuthGuard} from '../../security/auth.guard';
 import { CategoryService } from '../../services/category/category.service';
-//import { Category } from '../../interfaces/category.interface';
-import { Category } from '../../modules/common/entity/category'; //the model object must be hidden
+import { CategoryDTO } from '../../dtos/categoryDTO';
 
-@Controller('category')
+@Controller('categorys')
+@ApiTags('category')
+@UseGuards(AuthGuard)
 export class CategoryController {
 
-    constructor(private  categoryService:CategoryService){
-    }
+    @Inject()
+    private readonly categoryService:CategoryService;
 
     @Post()
-    addProdut(@Body() category:Category):any{
-      return this.categoryService.save(category);
+    addCategory(@Body() categoryDTO:CategoryDTO):any{
+      return this.categoryService.save(categoryDTO);
     }
 
     @Get()
-    getProduct():any{
+    getCategory():any{
       return  this.categoryService.findAll();
     }
 
     @Get(':id')
-    getOneProduct(@Param() params):any{
+    getOneCategory(@Param() params):any{
       return this.categoryService.find(params.id);
     }
 
     @Put(':id')
-    updateProduct(@Body() category:Category,@Param() params):any{
-      return   this.categoryService.update(params.id,category);
+    updateCategory(@Body() categoryDTO:CategoryDTO,@Param() params):any{
+      return   this.categoryService.update(params.id,categoryDTO);
     }
 
     @Delete(':id')
-    deleteProducto( @Param() params):any{
+    deleteCategory( @Param() params):any{
       return  this.categoryService.delete(params.id);
     }
 }

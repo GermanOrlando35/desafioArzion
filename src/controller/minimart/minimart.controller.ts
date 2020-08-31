@@ -1,27 +1,43 @@
-import {Controller,Get,Post,Put, Delete, Param,Body, Req} from '@nestjs/common';
+import {Controller, Get,Post,Put, Delete, Param,Body, Req, Inject, UseGuards} from '@nestjs/common';
+import {ApiTags, ApiResponse} from '@nestjs/swagger';
 import { Request } from 'express';
+import {AuthGuard} from '../../security/auth.guard';
 import { MinimartService } from '../../services/minimart/minimart.service';
-//import { Minimart } from '../../interfaces/minimart.interface';
-import { Minimart } from '../../modules/common/entity/minimart'; //the model object must be hidden
+import { MinimartDTO } from '../../dtos/minimartDTO';
 
-@Controller('minimart')
+@Controller('minimarts')
+@ApiTags('minimart')
+@UseGuards(AuthGuard)
 export class MinimartController {
 
-  constructor(private  minimartService:MinimartService){
-  }
+  @Inject()
+  private readonly minimartService:MinimartService;
 
   @Post()
-  addMinimart(@Body() minimart:Minimart):any{
-    return this.minimartService.save(minimart);
+  addMinimart(@Body() minimartDTO:MinimartDTO):any{
+    return this.minimartService.save(minimartDTO);
   }
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'All minimarts or selected depending on the parameter',
+  })
   getMinimart(@Req() req: Request):any{
-    //2-Be able to query available stores at a certain time in the day and return only those that apply
-    if (req.query.hour !== undefined) {
-      return this.minimartService.findByHours(req.query.hour);
-    }else{
-      return  this.minimartService.findAll();
+    try{
+      //2-Be able to query available stores at a certain time in the day and return only those that apply
+      if (req.query.hour !== undefined) {
+        return this.minimartService.findByHours(req.query.hour);
+      }else{
+        return  this.minimartService.findAll();
+      }
+    }catch(error){
+      return{
+        success: false,
+        data: {},
+        errors: [error],
+        warninigs: []
+      };
     }
   }
 
@@ -31,8 +47,8 @@ export class MinimartController {
   }
 
   @Put(':id')
-  updateMinimart(@Body() minimart:Minimart,@Param() params):any{
-    return   this.minimartService.update(params.id,minimart);
+  updateMinimart(@Body() minimartDTO:MinimartDTO,@Param() params):any{
+    return   this.minimartService.update(params.id,minimartDTO);
   }
 
   @Delete(':id')
@@ -41,14 +57,40 @@ export class MinimartController {
   }
 
   //4-Be able to query if a product is available, at a certain store, and return that product's info
-  @Get(":id/product/:idProduct")
+  @Get(":id/products/:idProduct")
+  @ApiResponse({
+    status: 200,
+    description: 'Product for a minimart',
+  })
   getProductByIdInMinimart(@Param() params):any{
-    return this.minimartService.findProductByIdInMinimart(params.id, params.idProduct);
+    try{
+      return this.minimartService.findProductByIdInMinimart(params.id, params.idProduct);
+    }catch(error){
+      return{
+        success: false,
+        data: {},
+        errors: [error],
+        warninigs: []
+      };
+    }
   }
 
   //5-Be able to query available products for a particular store
   @Get(":id/products")
+  @ApiResponse({
+    status: 200,
+    description: 'All products for a minimart',
+  })
   getProductsByMinimart(@Param() params):any{
-    return this.minimartService.findProdutcsByMinimart(params.id);
+    try{
+      return this.minimartService.findProdutcsByMinimart(params.id);
+    }catch(error){
+      return{
+        success: false,
+        data: {},
+        errors: [error],
+        warninigs: []
+      };
+    }
   }
 }

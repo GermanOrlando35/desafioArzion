@@ -1,23 +1,39 @@
-import {Controller,Get,Post,Put, Delete, Param,Body} from '@nestjs/common';
+import {Controller, Get,Post,Put, Delete, Param,Body, Inject, UseGuards} from '@nestjs/common';
+import {ApiTags, ApiResponse} from '@nestjs/swagger';
+import {AuthGuard} from '../../security/auth.guard';
 import { ProductService } from '../../services/product/product.service';
-//import { Product } from '../../interfaces/product.interface';
-import { Product } from '../../modules/common/entity/product'; //the model object must be hidden
+import { ProductDTO } from '../../dtos/productDTO';
 
-@Controller('product')
+@Controller('products')
+@ApiTags('product')
+@UseGuards(AuthGuard)
 export class ProductController {
 
-    constructor(private  productService:ProductService){
-    }
+    @Inject()
+    private readonly productService:ProductService;
 
     @Post()
-    addProdut(@Body() product:Product):any{
-      return this.productService.save(product);
+    addProdut(@Body() productDTO:ProductDTO):any{
+      return this.productService.save(productDTO);
     }
 
     //3-Be able to query all available products, across stores, with their total stock.
     @Get('allProductsWithTotalStock')
+    @ApiResponse({
+      status: 200,
+      description: 'All available products, across stores, with their total stock.',
+    })
     getProductsStockTotal():any{
-      return this.productService.findProductsStockTotal();
+      try{
+        return this.productService.findProductsStockTotal();
+      }catch(error){
+        return{
+          success: false,
+          data: {},
+          errors: [error],
+          warninigs: []
+        };
+      }
     }
 
     @Get()
@@ -31,8 +47,8 @@ export class ProductController {
     }
 
     @Put(':id')
-    updateProduct(@Body() product:Product,@Param() params):any{
-      return   this.productService.update(params.id,product);
+    updateProduct(@Body() productDTO:ProductDTO,@Param() params):any{
+      return   this.productService.update(params.id,productDTO);
     }
 
     @Delete(':id')

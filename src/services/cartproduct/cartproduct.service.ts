@@ -5,10 +5,9 @@ import { Cartproduct } from '../../modules/common/entity/cartproduct';
 
 @Injectable()
 export class CartproductService {
-  constructor(
-    @InjectRepository(Cartproduct)
-    private readonly cartproductRepository:Repository<Cartproduct>
-  ){}
+
+  @InjectRepository(Cartproduct)
+  private readonly cartproductRepository:Repository<Cartproduct>;
 
   async save(cartproduct:any){
     await this.cartproductRepository.insert(cartproduct);
@@ -29,5 +28,12 @@ export class CartproductService {
 
   async delete(id:number){
     return await this.cartproductRepository.delete(id);
+  }
+
+  async findByCartAndProduct(cartId:number, productId:number){
+    return await this.cartproductRepository.createQueryBuilder("cartproduct")
+    .where("cartId = :id", { id: cartId })
+    .andWhere("productId = :id", { id: productId })
+    .getOne();
   }
 }
