@@ -16,7 +16,7 @@ export class MinimartService {
 
   @Inject()
   private readonly productService: ProductService;
-  
+
 
   async save(minimart:any){
     await this.minimartRepository.insert(minimart);
@@ -24,7 +24,7 @@ export class MinimartService {
   }
 
   async update(id:number,minimart:any){
-    await this.minimartRepository.update(id,minimart);
+    return await this.minimartRepository.update(id,minimart);
   }
 
   async findAll(){

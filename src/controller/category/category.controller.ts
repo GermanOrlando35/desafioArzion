@@ -1,5 +1,5 @@
-import {Controller, Get,Post,Put, Delete, Param,Body,Inject, UseGuards} from '@nestjs/common';
-import {ApiTags} from '@nestjs/swagger';
+import {Controller, Get,Post,Put, Delete, Param,Body,Inject, UseGuards, HttpCode} from '@nestjs/common';
+import {ApiTags, ApiResponse, ApiForbiddenResponse} from '@nestjs/swagger';
 import {AuthGuard} from '../../security/auth.guard';
 import { CategoryService } from '../../services/category/category.service';
 import { CategoryDTO } from '../../dtos/categoryDTO';
@@ -13,27 +13,129 @@ export class CategoryController {
     private readonly categoryService:CategoryService;
 
     @Post()
-    addCategory(@Body() categoryDTO:CategoryDTO):any{
-      return this.categoryService.save(categoryDTO);
+    @HttpCode(201)
+    @ApiResponse({
+      status: 201,
+      description: 'Create a new category',
+    })
+    @ApiForbiddenResponse({ description: 'Forbidden.' })
+    async addCategory(@Body() categoryDTO:CategoryDTO){
+      try{
+        const category = await this.categoryService.save(categoryDTO);
+        return{
+          success: true,
+          data: {category},
+          errors: [],
+          warninigs: []
+        };
+      }catch(error){
+        return{
+          success: false,
+          data: {},
+          errors: [error],
+          warninigs: []
+        };
+      }
     }
 
     @Get()
-    getCategory():any{
-      return  this.categoryService.findAll();
+    @ApiResponse({
+      status: 200,
+      description: 'All available categories',
+    })
+    @ApiForbiddenResponse({ description: 'Forbidden.' })
+    async getCategory(){
+      try {
+        const categories = await this.categoryService.findAll();
+        return {
+            success: true,
+            data: {categories},
+            errors: [],
+            warnings: [],
+        };
+      } catch (error) {
+          return {
+            success: false,
+            data: {},
+            errors: [error],
+            warnings: [],
+          };
+      }
     }
 
     @Get(':id')
-    getOneCategory(@Param() params):any{
-      return this.categoryService.find(params.id);
+    @ApiResponse({
+      status: 200,
+      description: 'A category',
+    })
+    @ApiForbiddenResponse({ description: 'Forbidden.' })
+    async getOneCategory(@Param('id') id: number){
+      try{
+        const category = await this.categoryService.find(id);
+        return{
+          success: true,
+          data: {category},
+          errors: [],
+          warninigs: []
+        };
+      }catch(error){
+        return{
+          success: false,
+          data: {},
+          errors: [error],
+          warninigs: []
+        };
+      }
     }
 
     @Put(':id')
-    updateCategory(@Body() categoryDTO:CategoryDTO,@Param() params):any{
-      return   this.categoryService.update(params.id,categoryDTO);
+    @ApiResponse({
+      status: 200,
+      description: 'A update a category',
+    })
+    @ApiForbiddenResponse({ description: 'Forbidden.' })
+    async updateCategory(@Body() categoryDTO:CategoryDTO,@Param('id') id: number){
+      try{
+        await this.categoryService.update(id,categoryDTO);
+        const categoryUpdate = await this.categoryService.find(id);
+        return{
+          success: true,
+          data: {categoryUpdate},
+          errors: [],
+          warninigs: []
+        };
+      }catch(error){
+        return{
+          success: false,
+          data: {},
+          errors: [error],
+          warninigs: []
+        };
+      }
     }
 
     @Delete(':id')
-    deleteCategory( @Param() params):any{
-      return  this.categoryService.delete(params.id);
+    @HttpCode(204)
+    @ApiResponse({
+      status: 204,
+      description: 'Delete a category',
+    })
+    @ApiForbiddenResponse({ description: 'Forbidden.' })
+    async deleteCategory( @Param('id') id: number){
+      try{
+        await this.categoryService.delete(id);
+        return{
+          success: true,
+          errors: [],
+          warninigs: []
+        };
+      }catch(error){
+        return{
+          success: false,
+          data: {},
+          errors: [error],
+          warninigs: []
+        };
+      }
     }
 }
