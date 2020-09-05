@@ -96,8 +96,7 @@ export class CategoryController {
     @ApiForbiddenResponse({ description: 'Forbidden.' })
     async updateCategory(@Body() categoryDTO:CategoryDTO,@Param('id') id: number){
       try{
-        await this.categoryService.update(id,categoryDTO);
-        const categoryUpdate = await this.categoryService.find(id);
+        const categoryUpdate = await this.categoryService.update(id,categoryDTO);
         return{
           success: true,
           data: {categoryUpdate},

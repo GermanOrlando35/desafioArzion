@@ -1,7 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from '../../modules/common/entity/cart';
+import { CartDTO } from '../../dtos/cartDTO';
 import { Product } from '../../modules/common/entity/product';
 import { Cartproduct } from '../../modules/common/entity/cartproduct';
 import { MinimartproductService } from '../../services/minimartproduct/minimartproduct.service';
@@ -63,7 +64,12 @@ export class CartService {
 
       //the way to solve it that this uncommented does not work for me
 
-      return this.find(cartId);
+      const cartFind: Cart = await this.find(cartId);
+      if (cartFind) {
+        const cartDTO: CartDTO = new CartDTO(cartFind);
+        return cartDTO;
+      }
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
   }
 
