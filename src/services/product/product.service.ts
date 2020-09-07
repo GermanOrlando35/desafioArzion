@@ -10,8 +10,8 @@ export class ProductService {
     private readonly productRepository:Repository<Product>;
 
     async save(product:any){
-      await this.productRepository.insert(product);
-      return product
+      const insert = await this.productRepository.insert(product);
+      return await this.find(insert.raw.insertId);
     }
 
     async update(id:number,product:any){

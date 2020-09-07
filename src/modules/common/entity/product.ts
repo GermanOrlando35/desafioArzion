@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany, JoinTable, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany, ManyToOne, JoinTable, JoinColumn } from 'typeorm';
 import { Minimart } from '../entity/minimart';
 import { Category } from '../entity/category';
 import { Minimartproduct } from '../entity/minimartproduct';
@@ -19,7 +19,7 @@ export class Product {
   @Column()
   description: string;
 
-  @OneToOne(type => Category)
+  @ManyToOne(type => Category)
   @JoinColumn()
   category: Category;
 

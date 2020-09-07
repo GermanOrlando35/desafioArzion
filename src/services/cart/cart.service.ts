@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from '../../modules/common/entity/cart';
@@ -25,8 +25,8 @@ export class CartService {
   private readonly productService:ProductService;
 
   async save(cart:any){
-    await this.cartRepository.insert(cart);
-    return cart
+    const insert = await this.cartRepository.insert(cart);
+    return await this.find(insert.raw.insertId);
   }
 
   async update(id:number,cart:any){
@@ -69,7 +69,7 @@ export class CartService {
         const cartDTO: CartDTO = new CartDTO(cartFind);
         return cartDTO;
       }
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
   }
 

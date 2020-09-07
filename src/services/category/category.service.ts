@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '../../modules/common/entity/category';
@@ -11,23 +11,20 @@ export class CategoryService {
     private readonly categoryRepository:Repository<Category>;
 
     async save(category:any){
-      await this.categoryRepository.insert(category);
-      const categoryDTO: CategoryDTO = new CategoryDTO(category);
+      const insert = await this.categoryRepository.insert(category);
+      const categoryInsert: Category = await this.find(insert.raw.insertId);
+      const categoryDTO: CategoryDTO = new CategoryDTO(categoryInsert);
       return categoryDTO;
     }
 
     async update(id:number,category:any){
-      await this.categoryRepository.update(id,category);
+      const result = await this.categoryRepository.update(id,category);
       const categoryUpdate: Category = await this.find(id);
-      if (categoryUpdate) {
-        const categoryDTO: CategoryDTO = new CategoryDTO(categoryUpdate);
-        return categoryDTO;
-      }
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+      const categoryDTO: CategoryDTO = new CategoryDTO(categoryUpdate);
+      return categoryDTO;
     }
 
     async findAll(){
-      return await this.categoryRepository.find();
       const categories: Category[] = await this.categoryRepository.find();
       let categoriesDTO: CategoryDTO[] = [];
       for (let i = 0; i < categories.length; i++) {
@@ -43,7 +40,7 @@ export class CategoryService {
         const categoryDTO: CategoryDTO = new CategoryDTO(category);
         return categoryDTO;
       }
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
 
     async delete(id:number){

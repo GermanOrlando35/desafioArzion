@@ -26,8 +26,8 @@ export class MinimartproductService {
   }
 
   async save(minimartproduct:any){
-    await this.minimartproductRepository.insert(minimartproduct);
-    return minimartproduct
+    const insert = await this.minimartproductRepository.insert(minimartproduct);
+    return await this.find(insert.raw.insertId);
   }
 
   async update(id:number,minimartproduct:any){
@@ -39,7 +39,7 @@ export class MinimartproductService {
   }
 
   async find(id:number){
-    return await this.minimartproductRepository.findOne(id);
+    return await this.minimartproductRepository.findOne(id, { relations: ["product"] });
   }
 
   async delete(id:number){
@@ -48,8 +48,8 @@ export class MinimartproductService {
 
   async findByMinimartIdAndProductId(idMinimart:number,idProduct:number){
     return await this.minimartproductRepository.find({
-      minimart: this.getMinimartById(idMinimart),
-      product: this.getProductById(idProduct)
+      minimart: await this.getMinimartById(idMinimart),
+      product: await this.getProductById(idProduct)
     });
   }
 

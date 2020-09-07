@@ -10,8 +10,8 @@ export class CartproductService {
   private readonly cartproductRepository:Repository<Cartproduct>;
 
   async save(cartproduct:any){
-    await this.cartproductRepository.insert(cartproduct);
-    return cartproduct
+    const insert = await this.cartproductRepository.insert(cartproduct);
+    return await this.find(insert.raw.insertId);
   }
 
   async update(id:number,cartproduct:any){

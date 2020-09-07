@@ -103,7 +103,7 @@ export class CategoryController {
           errors: [],
           warninigs: []
         };
-      }catch(error){
+      }catch(error){      
         return{
           success: false,
           data: {},
