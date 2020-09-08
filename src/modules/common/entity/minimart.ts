@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Product } from '../entity/product';
 import { Minimartproduct } from '../entity/minimartproduct';
+import { Voucher } from '../entity/voucher';
 
 enum WorkDays {
   "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"
@@ -43,4 +44,7 @@ export class Minimart {
 
   @OneToMany(type => Minimartproduct, minimartproduct => minimartproduct.minimart)
   minimartproducts: Minimartproduct[];
+
+  @OneToMany(type => Voucher, voucher => voucher.minimart)
+  vouchers: Voucher[];
 }

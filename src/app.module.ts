@@ -10,6 +10,11 @@ import { Category } from './modules/common/entity/category';
 import { Cart } from './modules/common/entity/cart';
 import { Minimartproduct } from './modules/common/entity/minimartproduct';
 import { Cartproduct } from './modules/common/entity/cartproduct';
+import { Voucher } from './modules/common/entity/voucher';
+import { Bypercentage } from './modules/common/entity/bypercentage';
+import { Byunits } from './modules/common/entity/byunits';
+import { Bynumberofunits } from './modules/common/entity/bynumberofunits';
+import { Perday } from './modules/common/entity/perday';
 
 import { MinimartService } from './services/minimart/minimart.service';
 import { MinimartController } from './controller/minimart/minimart.controller';
@@ -37,11 +42,16 @@ import { CartproductService } from './services/cartproduct/cartproduct.service';
         Category,
         Cart,
         Minimartproduct,
-        Cartproduct
+        Cartproduct,
+        Voucher,
+        Bypercentage,
+        Byunits,
+        Bynumberofunits,
+        Perday
       ],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Minimart, Product, Category, Cart, Minimartproduct, Cartproduct]),
+    TypeOrmModule.forFeature([Minimart, Product, Category, Cart, Minimartproduct, Cartproduct, Voucher, Bypercentage, Byunits, Bynumberofunits, Perday]),
     CommonModule,
   ],
   controllers: [AppController, MinimartController, CategoryController, ProductController, CartController],
