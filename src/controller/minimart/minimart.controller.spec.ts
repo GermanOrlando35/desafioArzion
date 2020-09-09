@@ -1,40 +1,72 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MockType, repositoryMockFactory } from '../../../test/mock.repository';
 import { MinimartController } from './minimart.controller';
 import { MinimartService } from '../../services/minimart/minimart.service';
 import { Product } from '../../modules/common/entity/product';
+import { Category } from '../../modules/common/entity/category';
+import { Minimartproduct } from '../../modules/common/entity/minimartproduct';
+import { Cartproduct } from '../../modules/common/entity/cartproduct';
+import { Minimart } from '../../modules/common/entity/minimart';
+import { ProductService } from '../../services/product/product.service';
+import { MinimartproductService } from '../../services/minimartproduct/minimartproduct.service';
 
 describe('MinimartController', () => {
   let minimartcontroller: MinimartController;
   let minimartservice: MinimartService;
+  let repositoryMock: MockType<Repository<Minimart>>;
+  let minimartproductService: MinimartproductService;
+  let productService: ProductService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MinimartController],
-      providers: [MinimartService]
+      providers: [
+        MinimartService,
+        // Provide your mock instead of the actual repository
+        {
+          provide: getRepositoryToken(Minimart),
+          useFactory: repositoryMockFactory,
+        },
+        MinimartproductService,
+        {
+          provide: getRepositoryToken(Minimartproduct),
+          useFactory: repositoryMockFactory,
+        },
+        ProductService,
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        }
+      ]
     }).compile();
 
     minimartcontroller = module.get<MinimartController>(MinimartController);
     minimartservice = module.get<MinimartService>(MinimartService);
-    //minimartservice = await module.resolve(MinimartService);
+    repositoryMock = module.get(getRepositoryToken(Minimart));
+    minimartproductService = module.get<MinimartproductService>(MinimartproductService);
+    productService = module.get<ProductService>(ProductService);
   });
 
-  /*it('should be defined', () => {
+  it('should be defined', () => {
     expect(minimartcontroller).toBeDefined();
-  });*/
+  });
 
   describe('getProductByIdInMinimart', () => {
     it('should return a product', async () => {
-      const result = {id:1, name:"Cold Ice Tea", pricing:70, description:"Cold Ice Tea"};
-      //const result:Product = {id:1, name:"Cold Ice Tea", pricing:70, description:"Cold Ice Tea" ,category:null, minimartproducts:null, cartproducts:null};
-      /*const result = (): Promise<{ id: number, name: string, pricing: number, description: string }> => {
-        return new Promise(function (resolve) {
-          resolve({id:1, name:"Cold Ice Tea", pricing:70, description:"Cold Ice Tea"});
-        });
-      };*/
-      //jest.spyOn(minimartservice, 'findProductByIdInMinimart').mockImplementation(() => Promise.resolve(result));
-      jest.spyOn(minimartservice, 'findProductByIdInMinimart').mockImplementation(() => result);
+      const product: Product = {id:1, name:"Cold Ice Tea", pricing:70, description:"Cold Ice Tea" ,category:null, minimartproducts:null, cartproducts:null};
 
-      expect(await minimartcontroller.getProductByIdInMinimart(expect.anything())).toBe(result);
+      jest.spyOn(minimartservice, 'findProductByIdInMinimart').mockResolvedValueOnce(product);
+
+      const result = await minimartcontroller.getProductByIdInMinimart(1,1);
+      const expected = {
+        success: true,
+        data: {product},
+        errors: [],
+        warninigs: []
+      };
+      expect(result).toStrictEqual(expected);
     });
   });
 

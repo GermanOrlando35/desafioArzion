@@ -19,11 +19,11 @@ export class CartproductService {
   }
 
   async findAll(){
-    return await this.cartproductRepository.find();
+    return await this.cartproductRepository.find({ relations: ["cart", "product"] });
   }
 
   async find(id:number){
-    return await this.cartproductRepository.findOne(id);
+    return await this.cartproductRepository.findOne(id, { relations: ["cart", "product"] });
   }
 
   async delete(id:number){

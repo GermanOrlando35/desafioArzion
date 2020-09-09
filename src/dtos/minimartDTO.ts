@@ -12,12 +12,14 @@ export class MinimartDTO {
     this.closingTime = minimart.closingTime;
     this.address = minimart.address;
     this.logo = minimart.logo;
-    let minimartproductsDTO: MinimartproductDTO[] = [];
-    for (let i = 0; i < minimart.minimartproducts.length; i++) {
-      const minimartproductDTO: MinimartproductDTO = new MinimartproductDTO(minimart.minimartproducts[i]);
-      minimartproductsDTO.push(minimartproductDTO);
+    if (minimart.minimartproducts) {
+      let minimartproductsDTO: MinimartproductDTO[] = [];
+      for (let i = 0; i < minimart.minimartproducts.length; i++) {
+        const minimartproductDTO: MinimartproductDTO = new MinimartproductDTO(minimart.minimartproducts[i]);
+        minimartproductsDTO.push(minimartproductDTO);
+      }
+      this.minimartproductsDTO = minimartproductsDTO;
     }
-    this.minimartproductsDTO = minimartproductsDTO;
   }
 
   @ApiProperty()

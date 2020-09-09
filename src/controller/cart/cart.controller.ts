@@ -5,6 +5,7 @@ import {AuthGuard} from '../../security/auth.guard';
 import { CartService } from '../../services/cart/cart.service';
 import { Cart } from '../../modules/common/entity/cart'; //the model object must be hidden
 import { CartDTO } from '../../dtos/cartDTO';
+import { ProductDTO } from '../../dtos/productDTO';
 
 @Controller('carts')
 @ApiTags('cart')
@@ -22,7 +23,6 @@ export class CartController {
   })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
   async addCart(@Body() cartDTO:CartDTO){
-    return this.cartService.save(cartDTO);
     try{
       const minimart = await this.cartService.save(cartDTO);
       return{
@@ -48,7 +48,6 @@ export class CartController {
   })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
   async getCart(){
-    return  this.cartService.findAll();
     try{
       const carts = await this.cartService.findAll();
       return{
@@ -168,15 +167,19 @@ export class CartController {
     }
   }
 
-  @Patch(':id/products/:idProduct')
+  @Post(':id/products')
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'A product is added from the cart',
   })
+  @ApiResponse({
+    status: 409,
+    description: 'The product is out of stock',
+  })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
-  async addProduct(@Body() cartDTO:CartDTO, @Param('id') id: number, @Param('idProduct') idProduct: number){
+  async addProduct(@Body() productDTO:ProductDTO, @Param('id') id: number){
     try{
-      const productAdd = await this.cartService.addProduct(id, idProduct, cartDTO);
+      const productAdd = await this.cartService.addProduct(id, productDTO);
       return{
         success: true,
         data: {productAdd},
@@ -184,6 +187,11 @@ export class CartController {
         warninigs: []
       };
     }catch(error){
+      const {status} = error;
+      if (status === 409) {
+        error.message = "The product is out of stock";
+      }
+      
       return{
         success: false,
         data: {},

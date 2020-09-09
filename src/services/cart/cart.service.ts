@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from '../../modules/common/entity/cart';
@@ -34,7 +34,7 @@ export class CartService {
   }
 
   async findAll(){
-    return await this.cartRepository.find();
+    return await this.cartRepository.find({ relations: ["minimart", "cartproducts"] });
   }
 
   async find(id:number){
@@ -45,10 +45,19 @@ export class CartService {
     return await this.cartRepository.delete(id);
   }
 
-  async addProduct(cartId:number, productId:number, cart:any){
-    //let cart = await this.find(cartId);
-    let product = await this.productService.find(productId);
-    let minimartProductByIds = await this.minimartproductService.productHasStockForMinimart(cart.minimart.id,product.id);
+  async addProduct(cartId:number, product:any){
+    let cart = await this.find(cartId);
+    let {id: productId} = product
+
+    if (cart === undefined || productId === undefined) {
+      throw new NotFoundException();
+    }
+
+    let {minimart} = cart;
+    let {id: minimartId} = minimart;
+
+    let minimartProductByIds = await this.minimartproductService.productHasStockForMinimart(minimartId,productId);
+
     if (minimartProductByIds.stock > 0) {
       let cartProduct:Cartproduct = {
         cartproduct_id: null,
@@ -57,12 +66,11 @@ export class CartService {
         product: product
       };
 
-      cart.cartproducts.push(cartProduct); //add a new element to the cartproduct list and do a cart update
-      this.update(cartId,cart);
+      let cartproductNew = await this.cartproductService.save(cartProduct); //new association between product and cart
 
-      //this.cartproductService.save(cartProduct); //directly create a new cartproduct, which represents the intermediate table. Ugly
-
-      //the way to solve it that this uncommented does not work for me
+      //I have a problem with the typeorm because the update does not work for me
+      //cart.cartproducts.push(cartproductNew); //add a new element to the cartproduct list and do a cart update
+      //await this.update(cartId,cart);
 
       const cartFind: Cart = await this.find(cartId);
       if (cartFind) {
@@ -71,6 +79,8 @@ export class CartService {
       }
       throw new NotFoundException();
     }
+
+    throw new ConflictException();
   }
 
   //when a product is removed from a cart, the same thing happens to me as to add

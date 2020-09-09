@@ -8,8 +8,12 @@ export class CartproductDTO {
   constructor(cartproduct: Cartproduct){
     this.cartproduct_id = cartproduct.cartproduct_id;
     this.quantity = cartproduct.quantity;
-    this.cartDTO = new CartDTO(cartproduct.cart);
-    this.productDTO = new ProductDTO(cartproduct.product);
+    if (cartproduct.cart) {
+      this.cartDTO = new CartDTO(cartproduct.cart);
+    }
+    if (cartproduct.product) {
+      this.productDTO = new ProductDTO(cartproduct.product);
+    }
   }
 
   @ApiProperty()
