@@ -1,5 +1,6 @@
-import {Controller, Get,Post,Put,Patch, Delete, Param,Body, Req, Inject, UseGuards, HttpCode} from '@nestjs/common';
+import {Controller, Get,Post,Put,Patch, Delete, Param,Body, Req, Query, Inject, UseGuards, HttpCode} from '@nestjs/common';
 import {ApiTags, ApiResponse, ApiForbiddenResponse} from '@nestjs/swagger';
+import { ApiImplicitQueries } from 'nestjs-swagger-api-implicit-queries-decorator';
 import { Request } from 'express';
 import {AuthGuard} from '../../security/auth.guard';
 import { CartService } from '../../services/cart/cart.service';
@@ -67,14 +68,26 @@ export class CartController {
   }
 
   @Get(':id')
+  @ApiImplicitQueries([
+    { name: 'codeVoucher', description: 'voucher code to validate before a cart', required: false }
+  ])
   @ApiResponse({
     status: 200,
     description: 'A cart',
   })
+  @ApiResponse({
+    status: 409,
+    description: 'The voucher does not apply to the cart',
+  })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
-  async getOneCart(@Param('id') id: number){
+  async getOneCart(@Param('id') id: number, @Query("codeVoucher") codeVoucher:string){
     try{
-      const cart = await this.cartService.find(id);
+      let cart;
+      if (codeVoucher !== undefined) {
+        cart = await this.cartService.validateVoucher(id,codeVoucher);
+      }else{
+        cart = await this.cartService.find(id);
+      }
       return{
         success: true,
         data: {cart},
@@ -82,6 +95,10 @@ export class CartController {
         warninigs: []
       };
     }catch(error){
+      const {status} = error;
+      if (status === 409) {
+        error.message = "The voucher does not apply to the cart";
+      }
       return{
         success: false,
         data: {},
@@ -191,7 +208,7 @@ export class CartController {
       if (status === 409) {
         error.message = "The product is out of stock";
       }
-      
+
       return{
         success: false,
         data: {},

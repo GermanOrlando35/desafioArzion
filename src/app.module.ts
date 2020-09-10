@@ -26,6 +26,7 @@ import { CartService } from './services/cart/cart.service';
 import { CartController } from './controller/cart/cart.controller';
 import { MinimartproductService } from './services/minimartproduct/minimartproduct.service';
 import { CartproductService } from './services/cartproduct/cartproduct.service';
+import { VoucherService } from './services/voucher/voucher.service';
 
 @Module({
   imports: [
@@ -55,6 +56,6 @@ import { CartproductService } from './services/cartproduct/cartproduct.service';
     CommonModule,
   ],
   controllers: [AppController, MinimartController, CategoryController, ProductController, CartController],
-  providers: [AppService, MinimartService, CategoryService, ProductService, CartService, MinimartproductService, CartproductService]
+  providers: [AppService, MinimartService, CategoryService, ProductService, CartService, MinimartproductService, CartproductService, VoucherService]
 })
 export class AppModule {}

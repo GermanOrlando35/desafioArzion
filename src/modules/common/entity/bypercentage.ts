@@ -4,9 +4,17 @@ import { Voucher } from '../entity/voucher';
 @ChildEntity()
 export class Bypercentage extends Voucher{
 
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column()
   discountRate: number;
+
+  hasDiscounts(product: any, cart:any):number{
+    const products = this.products;
+    for (let p = 0; p < products.length; p++) {
+      if (products[p].id === product.id) {
+         const priceByUnit = product.pricing - (this.discountRate * product.pricing)/100;
+         return priceByUnit * product.quantity;
+      }
+    }
+    return product.pricing * product.quantity;
+  }
 }

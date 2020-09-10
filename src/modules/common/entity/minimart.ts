@@ -4,7 +4,13 @@ import { Minimartproduct } from '../entity/minimartproduct';
 import { Voucher } from '../entity/voucher';
 
 enum WorkDays {
-  "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"
+  Lunes = "Lunes",
+  Martes = "Martes",
+  Miercoles = "Miercoles",
+  Jueves = "Jueves",
+  Viernes = "Viernes",
+  Sabado = "Sabado",
+  Domingo ="Domingo"
 }
 
 @Entity()
@@ -22,7 +28,7 @@ export class Minimart {
       enum: WorkDays
     }
   )
-  workDays: string;
+  workDays: WorkDays;
 
   /*@Column("simple-json")
   hours: { start: string, end: string };*/

@@ -8,6 +8,9 @@ import { Cartproduct } from '../../modules/common/entity/cartproduct';
 import { MinimartproductService } from '../../services/minimartproduct/minimartproduct.service';
 import { CartproductService } from '../../services/cartproduct/cartproduct.service';
 import { ProductService } from '../../services/product/product.service';
+import { VoucherService } from '../../services/voucher/voucher.service';
+
+import { Perday } from '../../modules/common/entity/perday';
 
 @Injectable()
 export class CartService {
@@ -23,6 +26,9 @@ export class CartService {
 
   @Inject()
   private readonly productService:ProductService;
+
+  @Inject()
+  private readonly voucherService:VoucherService;
 
   async save(cart:any){
     const insert = await this.cartRepository.insert(cart);
@@ -43,6 +49,18 @@ export class CartService {
 
   async delete(id:number){
     return await this.cartRepository.delete(id);
+  }
+
+  async findProductByCart(cart: Cart){
+    let products = [];
+    const {cartproducts} = cart;
+    for (let i = 0; i < cartproducts.length; i++) {
+      const cartProduct = await this.cartproductService.find(cartproducts[i].cartproduct_id);
+      const quantity = {quantity:cartProduct.quantity};
+      const product = Object.assign(cartProduct.product, quantity) //We keep the amount
+      products.push(product);
+    }
+    return products;
   }
 
   async addProduct(cartId:number, product:any){
@@ -87,5 +105,33 @@ export class CartService {
   async deleteProduct (cartId:number, productId:number){
     let cartProduct = await this.cartproductService.findByCartAndProduct(cartId,productId);
     return this.cartproductService.delete(cartProduct.cartproduct_id);
+  }
+
+  //Be able to check the validity of a Voucher code on said virtual cart. Calculate discounts and return both original and discounted prices.
+  async validateVoucher (cartId:number, codeVoucher:string){
+
+    const cart = await this.find(cartId);
+    const voucher = await this.voucherService.findByCode(codeVoucher);
+    const products = await this.findProductByCart(cart);
+
+    if ( (voucher.minimart.id === cart.minimart.id) && ( (voucher.validityPeriodFrom < cart.dateArmed) && (cart.dateArmed < voucher.validityPeriodUntil) ) ){
+      let totalPriceWithDiscounts: number = 0;
+      let totalPriceWithoutDiscounts: number = 0;
+      for (let p = 0; p < products.length; p++) {
+        let priceAccordingToVoucher: number = voucher.hasDiscounts(products[p], cart);
+        totalPriceWithDiscounts = totalPriceWithDiscounts + priceAccordingToVoucher;
+        totalPriceWithoutDiscounts = totalPriceWithoutDiscounts + products[p].pricing;
+      }
+
+      const response = {
+        totalPriceWithDiscounts: totalPriceWithDiscounts,
+        totalPriceWithoutDiscounts: totalPriceWithoutDiscounts
+      }
+
+      return response;
+    }
+
+    throw new ConflictException();
+
   }
 }

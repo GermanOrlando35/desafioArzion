@@ -22,11 +22,11 @@ export class Voucher {
   @JoinTable({
     name: "products_voucher",
     joinColumn: {
-      name: "product",
+      name: "voucher",
       referencedColumnName: "id"
     },
     inverseJoinColumn: {
-      name: "voucher",
+      name: "product",
       referencedColumnName: "id"
     }
   })
